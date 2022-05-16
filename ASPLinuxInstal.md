@@ -8,6 +8,10 @@
 **.NET Install on Ubuntu**
 ==============
 
+First of all we need to instal .NET.
+It is important to choose correct versions of Ubuntu (20.04 in example) and .Net installs (6.0 in example).
+[Source](https://docs.microsoft.com/ru-ru/dotnet/core/install/linux-ubuntu#2004)
+
 #### Packages
 
 ```sh
@@ -35,6 +39,12 @@ sudo apt-get update; \
 
 **APACHE**
 ==============
+
+Next we need to install apache and setup it. 
+After apache install we enabling mods for correct site work. 
+Also, create config file with site properties (domain, local address, logs names).
+If we have blazor server we need to setup additional proxies for socket connection.
+
 ```sh
 sudo apt-get install apache2
 ```
@@ -52,6 +62,7 @@ sudo a2enmod rewrite
 ```sh
 sudo nano /etc/apache2/conf-available/sitename.conf
 ```
+Do not forget to enable config file with commands below. Also, restart apache after that.
 #### Enabling/Disabling
 ```sh
 a2ensite sitename
@@ -60,36 +71,57 @@ a2ensite sitename
 a2dissite sitename
 ```
 
-#### CONTENT
+#### CONFIG CONTENT
 ```
 <VirtualHost *:80>
 ServerName www.DOMAIN.COM
+
 ProxyPreserveHost On
-ProxyPass / http://127.0.0.1:5000/
-ProxyPassReverse / http://127.0.0.1:5000/
+ProxyPass / http://localhost:5000/
+ProxyPassReverse / http://localhost:5000/
+
 RewriteEngine on 
 RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC] 
 RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC] 
 RewriteRule /(.*) ws://127.0.0.1:5000/$1 [P]
+
 ErrorLog /var/log/apache2/netcore-error.log
 CustomLog /var/log/apache2/netcore-access.log common
 </VirtualHost>
 ```
-#### BLAZOR SERVER ADITIONAL VALUES
+#### BLAZOR SERVER CONFIG
+
+[Source](https://docs.microsoft.com/ru-ru/aspnet/core/blazor/host-and-deploy/server?view=aspnetcore-6.0)
+
 ```
+<VirtualHost *:80>
+ServerName www.DOMAIN.COM
+
 ProxyRequests       On
 ProxyPreserveHost   On
 ProxyPassMatch      ^/_blazor/(.*) http://localhost:5000/_blazor/$1
 ProxyPass           /_blazor ws://localhost:5000/_blazor
 ProxyPass           / http://localhost:5000/
 ProxyPassReverse    / http://localhost:5000/
+
+RewriteEngine on 
+RewriteCond %{HTTP:UPGRADE} ^WebSocket$ [NC] 
+RewriteCond %{HTTP:CONNECTION} Upgrade$ [NC] 
+RewriteRule /(.*) ws://127.0.0.1:5000/$1 [P]
+
+ErrorLog /var/log/apache2/netcore-error.log
+CustomLog /var/log/apache2/netcore-access.log common
+</VirtualHost>
 ```
 **SERVICE CREATING**
 ==============
+
+Final step is creating service that will work in background and start, restart on crash our site.
+
 ```
 sudo nano /etc/systemd/system/servicename.service
 ```
-#### CONTENT
+#### SERVICE FILE CONTENT
 ```
 [Unit]
 Description=ASP .NET Web Application
@@ -106,9 +138,9 @@ WantedBy=multi-user.target
 ```
 #### Service Cmds
 ```
-sudo systemctl enable kestrel-netcore.service
-sudo systemctl start kestrel-netcore.service
-sudo systemctl restart kestrel-netcore.service
+sudo systemctl enable servicename.service
+sudo systemctl start servicename.service
+sudo systemctl restart servicename.service
 ```
 
 
