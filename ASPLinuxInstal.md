@@ -16,7 +16,11 @@ It is important to choose correct versions of Ubuntu (20.04 in example) and .Net
 
 ```sh
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+```
+```sh
 sudo dpkg -i packages-microsoft-prod.deb
+```
+```sh
 rm packages-microsoft-prod.deb
 ```
 
@@ -51,11 +55,15 @@ sudo apt-get install apache2
 #### UTIL CMDS
 ```sh
 sudo service apache2 restart
+```
+```sh
 sudo apachectl configtest
 ```
 #### APACHE MODS
 ```sh
 sudo a2enmod proxy proxy_http proxy_html proxy_wstunnel
+```
+```sh
 sudo a2enmod rewrite
 ```
 #### SITE CONFIG FILE
