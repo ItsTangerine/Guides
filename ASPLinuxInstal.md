@@ -68,7 +68,7 @@ sudo a2enmod rewrite
 ```
 #### SITE CONFIG FILE
 ```sh
-sudo nano /etc/apache2/conf-available/sitename.conf
+sudo nano /etc/apache2/sites-available/sitename.conf
 ```
 Do not forget to enable config file with commands below. Also, restart apache after that.
 #### Enabling/Disabling
